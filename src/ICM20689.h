@@ -46,6 +46,9 @@ public:
   double  getAccelX_mss();
   double  getAccelY_mss();
   double  getAccelZ_mss();
+  double  getAccelX_g();
+  double  getAccelY_g();
+  double  getAccelZ_g();
   double  getGyroX_rads();
   double  getGyroY_rads();
   double  getGyroZ_rads();

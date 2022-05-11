@@ -61,7 +61,7 @@ int ICM20689::begin() {
   if (writeRegister(ACCEL_CONFIG, ACCEL_FS_SEL_16G) < 0) {
     return -5;
   }
-  _accelScale = G * 16.0f / 32767.5f; // setting the accel scale to 16G
+  _accelScale = 16.0f / 32767.5f; // setting the accel scale to 16G
   _accelRange = ACCEL_RANGE_16G;
   // setting the gyro range to 2000DPS as default
   if (writeRegister(GYRO_CONFIG, GYRO_FS_SEL_2000DPS) < 0) {
@@ -100,7 +100,7 @@ int ICM20689::setAccelRange(AccelRange range) {
       if (writeRegister(ACCEL_CONFIG, ACCEL_FS_SEL_2G) < 0) {
         return -1;
       }
-      _accelScale = G * 2.0f / 32767.5f; // setting the accel scale to 2G
+      _accelScale = 2.0f / 32767.5f; // setting the accel scale to 2G
       break;
     }
     case ACCEL_RANGE_4G: {
@@ -108,7 +108,7 @@ int ICM20689::setAccelRange(AccelRange range) {
       if (writeRegister(ACCEL_CONFIG, ACCEL_FS_SEL_4G) < 0) {
         return -1;
       }
-      _accelScale = G * 4.0f / 32767.5f; // setting the accel scale to 4G
+      _accelScale = 4.0f / 32767.5f; // setting the accel scale to 4G
       break;
     }
     case ACCEL_RANGE_8G: {
@@ -116,7 +116,7 @@ int ICM20689::setAccelRange(AccelRange range) {
       if (writeRegister(ACCEL_CONFIG, ACCEL_FS_SEL_8G) < 0) {
         return -1;
       }
-      _accelScale = G * 8.0f / 32767.5f; // setting the accel scale to 8G
+      _accelScale = 8.0f / 32767.5f; // setting the accel scale to 8G
       break;
     }
     case ACCEL_RANGE_16G: {
@@ -124,7 +124,7 @@ int ICM20689::setAccelRange(AccelRange range) {
       if (writeRegister(ACCEL_CONFIG, ACCEL_FS_SEL_16G) < 0) {
         return -1;
       }
-      _accelScale = G * 16.0f / 32767.5f; // setting the accel scale to 16G
+      _accelScale = 16.0f / 32767.5f; // setting the accel scale to 16G
       break;
     }
   }
@@ -336,7 +336,8 @@ int ICM20689::readSensor() {
   _gyroCounts[0] = (((int16_t) _buffer[8]) << 8) | _buffer[9];
   _gyroCounts[1] = (((int16_t) _buffer[10]) << 8) | _buffer[11];
   _gyroCounts[2] = (((int16_t) _buffer[12]) << 8) | _buffer[13];
-  _acc[0]        = (((double) (tX[0] * _accCounts[0] + tX[1] * _accCounts[1] +
+
+  _acc[0] = (((double) (tX[0] * _accCounts[0] + tX[1] * _accCounts[1] +
                         tX[2] * _accCounts[2]) *
               _accelScale) -
              _accB[0]) *
@@ -351,7 +352,9 @@ int ICM20689::readSensor() {
               _accelScale) -
              _accB[2]) *
             _accS[2];
-  _t       = ((((double) _tcounts) - _tempOffset) / _tempScale) + _tempOffset;
+
+  _t = ((((double) _tcounts) - _tempOffset) / _tempScale) + _tempOffset;
+
   _gyro[0] = ((double) (tX[0] * _gyroCounts[0] + tX[1] * _gyroCounts[1] +
                         tX[2] * _gyroCounts[2]) *
               _gyroScale) -
@@ -472,16 +475,31 @@ int ICM20689::readAccGyro(double *accGyro) {
 
 /* returns the accelerometer measurement in the x direction, m/s/s */
 double ICM20689::getAccelX_mss() {
-  return _acc[0];
+  return _acc[0] * G;
 }
 
 /* returns the accelerometer measurement in the y direction, m/s/s */
 double ICM20689::getAccelY_mss() {
-  return _acc[1];
+  return _acc[1] * G;
 }
 
 /* returns the accelerometer measurement in the z direction, m/s/s */
 double ICM20689::getAccelZ_mss() {
+  return _acc[2] * G;
+}
+
+/* returns the accelerometer measurement in the x direction, g */
+double ICM20689::getAccelX_g() {
+  return _acc[0];
+}
+
+/* returns the accelerometer measurement in the y direction, g */
+double ICM20689::getAccelY_g() {
+  return _acc[1];
+}
+
+/* returns the accelerometer measurement in the z direction, g */
+double ICM20689::getAccelZ_g() {
   return _acc[2];
 }
 
@@ -801,7 +819,7 @@ int ICM20689::calibrateAccel() {
 
 /* returns the accelerometer bias in the X direction, m/s/s */
 double ICM20689::getAccelBiasX_mss() {
-  return _accB[0];
+  return _accB[0] * G;
 }
 
 /* returns the accelerometer scale factor in the X direction */
@@ -811,7 +829,7 @@ double ICM20689::getAccelScaleFactorX() {
 
 /* returns the accelerometer bias in the Y direction, m/s/s */
 double ICM20689::getAccelBiasY_mss() {
-  return _accB[1];
+  return _accB[1] * G;
 }
 
 /* returns the accelerometer scale factor in the Y direction */
@@ -821,7 +839,7 @@ double ICM20689::getAccelScaleFactorY() {
 
 /* returns the accelerometer bias in the Z direction, m/s/s */
 double ICM20689::getAccelBiasZ_mss() {
-  return _accB[2];
+  return _accB[2] * G;
 }
 
 /* returns the accelerometer scale factor in the Z direction */
